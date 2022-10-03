@@ -1,0 +1,45 @@
+from tkinter import *
+from PIL import ImageTk, Image
+import cv2
+import numpy as np
+
+#importing packages
+
+root = Tk()
+root.title('Languify32')
+root.config(bg = '#2e2d2d')
+
+label = Label(root,text = 'Languify - Language simplified',bg='#2e2d2d')
+label.configure(fg='yellow', font=('Comic Sans MS',20))
+label.grid()
+
+vdo = Label(root)
+vdo.grid(padx = 50)
+
+cap = cv2.VideoCapture(0)
+#hand_cascade = cv2.CascadeClassifier('haarcascadefile.xml')
+
+def video_frame():
+    ret, frame = cap.read()
+
+    #frame = cv2.copyMakeBorder(frame,30,30,30,30,cv2.BORDER_CONSTANT)
+    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+    #hand = hand_cascade.detectMultiScale(gray, 1.4, 5)
+
+    #for (x,y,w,h) in hand:
+        #roi = gray[y:y+h, x:x + w]
+        #cv2.rectangle(frame, (x,y), (x+w,y+h), (0,255,0), 1)
+
+    converted_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
+    img = Image.fromarray(converted_image)
+    img_tk = ImageTk.PhotoImage(image = img)
+    vdo.configure(image = img_tk)
+    vdo.image = img_tk
+    vdo.after(1,video_frame)
+    #cv2.imshow('frame', frame)
+
+video_frame()
+
+listbox = Listbox(root, width=130, height=5, bg='#383737', borderwidth=0, highlightthickness=0)
+listbox.grid(pady=(25,0))
+root.mainloop()
