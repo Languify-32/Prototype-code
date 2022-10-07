@@ -35,6 +35,16 @@ detector = HandDetector(maxHands=1)
 classifier = Classifier("keras_model.h5", "labels.txt")
 labels = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
 
+
+img_label = Label(root)
+img_label.grid(padx = (0,50))
+img_label.place(relx=0.55, rely=0.5, relheight=0.57, relwidth=0.4, anchor=W)
+
+m_next = Button(root, text="Next")
+m_next.place(relx = 0.926, rely = 0.82, anchor=W)
+m_prev = Button(root, text="Previous")
+m_prev.place(relx = 0.55, rely = 0.82, anchor=W)
+
 def video_frame():
     ret, frame = cap.read()
     #frame = cv2.copyMakeBorder(frame,30,30,30,30,cv2.BORDER_CONSTANT)
@@ -58,7 +68,15 @@ def video_frame():
         cv2.putText(frame, labels[index], (x, y - 40), cv2.FONT_HERSHEY_COMPLEX, 2, (225, 0, 255), 2)
         #print(labels[index])
 
-
+        if prediction:
+            path = 'Sign Images/' + labels[index] + '.jpg'
+            #print(x)
+            letters = ImageTk.PhotoImage(Image.open(path))
+            img_label.configure(image=letters)
+            img_label.image = letters
+        else:
+            img_label.configure(image=letter)
+            img_label.image = letter
 
     if frame is not None:
         converted_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
@@ -70,14 +88,25 @@ def video_frame():
         vdo.after(1,video_frame)
         #cv2.imshow('frame', frame)
 
+"""def next():
+    img_label.get
+    n_tk = ImageTk.PhotoImage(Image.open(n_img))
+    img_label.configure(n_tk)
+    img_label.image = n_tk
+    
+def prev():
+    
+    p_tk = ImageTk.PhotoImage(Image.open(p_img))
+    img_label.configure(n_tk)
+    img_label.image = n_tk"""
+
+
 video_frame()
 
-
-img_label = Label(root)
-img_label.grid(padx = (0,50))
-img_label.place(relx=0.6, rely=0.5, anchor=W)
+letter = ImageTk.PhotoImage(Image.open("Sign Images/A.jpg"))
+img_label.configure(image=letter)
+img_label.image = letter
 
 root.mainloop()
-
 
 
