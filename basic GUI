@@ -1,26 +1,39 @@
+import tkinter
 from tkinter import *
 from PIL import ImageTk, Image
 import cv2
 import numpy as np
 from cvzone.HandTrackingModule import HandDetector
+from cvzone.ClassificationModule import Classifier
 
 #importing packages
 
 root = Tk()
 root.title('Languify32')
-root.config(bg = '#2e2d2d')
+root.config(bg = '#3d3c3c')
 root.attributes('-fullscreen',True)
 
-label = Label(root,text = 'Languify - Language simplified',bg='#2e2d2d')
-label.configure(fg='yellow', font=('Comic Sans MS',30))
+#canvas = Canvas(root,height=100, width=100)
+
+label = Label(root,text = 'LANGUIFY Language simplified',bg='#3d3c3c')
+label.configure(fg='yellow', font=('Bodoni Bd BT',30))
 label.place(relx = 0.5, rely= 0.04, anchor=CENTER)
 
+label1 = Label(root,text = '"Language simplified"',bg='#3d3c3c')
+label1.configure(fg='yellow', font=('Caladea',25))
+label1.place(relx = 0.5, rely= 0.11, anchor=CENTER)
+
+#canvas.create_line(100,100,100,150,fill="white", width=5)
+
 vdo = Label(root)
-vdo.grid(padx = 50)
-vdo.place(relx=0.5, rely=0.5, relwidth=0.7,relheight=0.7, anchor=CENTER)
+vdo.grid(padx = (0,50))
+vdo.place(relx=0.05, rely=0.5, anchor=W)
+#vdo.pack(side=tkinter.LEFT)
 cap = cv2.VideoCapture(0)
-detector = HandDetector(maxHands=2)
-#hand_cascade = cv2.CascadeClassifier('haarcascadefile.xml')
+
+detector = HandDetector(maxHands=1)
+classifier = Classifier("keras_model.h5", "labels.txt")
+labels = ["A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"]
 
 def video_frame():
     ret, frame = cap.read()
@@ -28,21 +41,43 @@ def video_frame():
     gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
     #cv2.rectangle(frame, (100,100), (280,280), (0,255,0), 2)
-    hands, frame = detector.findHands(frame)
+    hands, img = detector.findHands(frame)
 
-    converted_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
-    img = Image.fromarray(converted_image)
-    #img = img.resize((vdo.width.get(),vdo.height.get()))
-    img_tk = ImageTk.PhotoImage(image = img)
-    vdo.configure(image = img_tk)
-    vdo.image = img_tk
-    vdo.after(1,video_frame)
-    #cv2.imshow('frame', frame)
+    if hands:
+        hand = hands[0]
+        x, y, w, h = hand['bbox']
+        #h = hand1.get('bbox')
+
+        #hand['bbox']
+        imgcrop = frame[y:y + h, x:x + w]
+        #print(h)
+        imgcropshape = imgcrop.shape
+
+        image = imgcrop.copy()
+        prediction, index = classifier.getPrediction(image)
+        cv2.putText(frame, labels[index], (x, y - 40), cv2.FONT_HERSHEY_COMPLEX, 2, (225, 0, 255), 2)
+        #print(labels[index])
+
+
+
+    if frame is not None:
+        converted_image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
+        img = Image.fromarray(converted_image)
+        #img = img.resize((vdo.width.get(),vdo.height.get()))
+        img_tk = ImageTk.PhotoImage(image = img)
+        vdo.configure(image = img_tk)
+        vdo.image = img_tk
+        vdo.after(1,video_frame)
+        #cv2.imshow('frame', frame)
 
 video_frame()
 
-listbox = Listbox(root, width=130, height=5, bg='#383737', borderwidth=0, highlightthickness=0)
-listbox.grid(pady=(25,0))
-listbox.place(relx=0.5, rely=0.95,relwidth=1, anchor=CENTER)
+
+img_label = Label(root)
+img_label.grid(padx = (0,50))
+img_label.place(relx=0.6, rely=0.5, anchor=W)
+
 root.mainloop()
+
+
 
