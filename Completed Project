@@ -15,7 +15,7 @@ root.attributes('-fullscreen',True)
 
 #canvas = Canvas(root,height=100, width=100)
 
-label = Label(root,text = 'LANGUIFY Language simplified',bg='#3d3c3c')
+label = Label(root,text = 'LANGUIFY',bg='#3d3c3c')
 label.configure(fg='yellow', font=('Bodoni Bd BT',30))
 label.place(relx = 0.5, rely= 0.04, anchor=CENTER)
 
